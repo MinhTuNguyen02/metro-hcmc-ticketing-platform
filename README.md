@@ -21,10 +21,10 @@ The project consists of **4 coordinated applications**:
 
 | Repository | Description | Tech Stack | Link |
 |-----------|-------------|------------|------|
-| Backend API | REST API for tickets, payments, scanner validation, admin operations, and batch jobs | Node.js, Express, PostgreSQL, PayOS | **[Backend Repository](PASTE_BACKEND_REPO_LINK_HERE)** |
-| Admin Dashboard | Web dashboard for managing stations, ticket products, reports, users, and system data | React, Vite, TypeScript, Ant Design | **[Admin Dashboard Repository](PASTE_ADMIN_REPO_LINK_HERE)** |
-| Passenger Mobile App | Mobile app for ticket purchase, payment, QR ticket display, and metro map features | React Native, Expo, TypeScript | **[Passenger App Repository](PASTE_PASSENGER_APP_REPO_LINK_HERE)** |
-| Scanner Mobile App | Mobile app for station inspectors to scan and validate QR tickets | React Native, Expo, expo-camera | **[Scanner App Repository](PASTE_SCANNER_APP_REPO_LINK_HERE)** |
+| Backend API | REST API for tickets, payments, scanner validation, admin operations, and batch jobs | Node.js, Express, PostgreSQL, PayOS | **[Backend Repository](https://github.com/Ryhtruly/metroHcmc---web-service)** |
+| Admin Dashboard | Web dashboard for managing stations, ticket products, reports, users, and system data | React, Vite, TypeScript, Ant Design | **[Admin Dashboard Repository](https://github.com/Ryhtruly/metroHcmc---Admin)** |
+| Passenger Mobile App | Mobile app for ticket purchase, payment, QR ticket display, and metro map features | React Native, Expo, TypeScript | **[Passenger App Repository](https://github.com/Ryhtruly/metroHcmc---appMobile)** |
+| Scanner Mobile App | Mobile app for station inspectors to scan and validate QR tickets | React Native, Expo, expo-camera | **[Scanner App Repository](https://github.com/MinhTuNguyen02/metro-scanner-app)** |
 
 ---
 
