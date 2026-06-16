@@ -15,16 +15,14 @@ The project consists of **4 coordinated applications**:
 
 ---
 
-## 🔗 Repositories
+## 📂 Project Structure
 
-> Replace the placeholders below with your actual repository links.
-
-| Repository | Description | Tech Stack | Link |
-|-----------|-------------|------------|------|
-| Backend API | REST API for tickets, payments, scanner validation, admin operations, and batch jobs | Node.js, Express, PostgreSQL, PayOS | **[Backend Repository](https://github.com/Ryhtruly/metroHcmc---web-service)** |
-| Admin Dashboard | Web dashboard for managing stations, ticket products, reports, users, and system data | React, Vite, TypeScript, Ant Design | **[Admin Dashboard Repository](https://github.com/Ryhtruly/metroHcmc---Admin)** |
-| Passenger Mobile App | Mobile app for ticket purchase, payment, QR ticket display, and metro map features | React Native, Expo, TypeScript | **[Passenger App Repository](https://github.com/Ryhtruly/metroHcmc---appMobile)** |
-| Scanner Mobile App | Mobile app for station inspectors to scan and validate QR tickets | React Native, Expo, expo-camera | **[Scanner App Repository](https://github.com/MinhTuNguyen02/metro-scanner-app)** |
+| Component | Description | Tech Stack | Directory |
+|-----------|-------------|------------|-----------|
+| Backend API | REST API for tickets, payments, scanner validation, admin operations, and batch jobs | Node.js, Express, PostgreSQL, PayOS | **[metroHcmc---web-service](./metroHcmc---web-service)** |
+| Admin Dashboard | Web dashboard for managing stations, ticket products, reports, users, and system data | React, Vite, TypeScript, Ant Design | **[metroHcmc---Admin](./metroHcmc---Admin)** |
+| Passenger Mobile App | Mobile app for ticket purchase, payment, QR ticket display, and metro map features | React Native, Expo, TypeScript | **[metroHcmc---appMobile](./metroHcmc---appMobile)** |
+| Scanner Mobile App | Mobile app for station inspectors to scan and validate QR tickets | React Native, Expo, expo-camera | **[metro-scanner-app](./metro-scanner-app)** |
 
 ---
 
@@ -188,26 +186,15 @@ My confirmed contributions focused on the core passenger ticketing, payment, QR 
 
 ## 🚀 Getting Started
 
-This repository is an overview/documentation repository.
-
-To run the full system, clone and set up each repository separately:
-
-1. Backend API
-2. Admin Dashboard
-3. Passenger Mobile App
-4. Scanner Mobile App
-
-Detailed setup instructions should be placed in each individual repository.
+This is a monorepo containing all components. You can run each component by navigating to its respective folder.
 
 Recommended setup order:
 
-```text
-1. Start PostgreSQL database
-2. Start Backend API
-3. Start Admin Dashboard
-4. Start Passenger Mobile App
-5. Start Scanner Mobile App
-```
+1. **Start Database**: Set up and run your PostgreSQL database.
+2. **Start Backend API**: Navigate to [metroHcmc---web-service](./metroHcmc---web-service) and run the server.
+3. **Start Admin Dashboard**: Navigate to [metroHcmc---Admin](./metroHcmc---Admin) and run the client.
+4. **Start Passenger Mobile App**: Navigate to [metroHcmc---appMobile](./metroHcmc---appMobile) and start the Expo project.
+5. **Start Scanner Mobile App**: Navigate to [metro-scanner-app](./metro-scanner-app) and start the Expo project.
 
 ---
 
