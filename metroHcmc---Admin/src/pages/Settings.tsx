@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Tabs, Table, Tag, Button, Input, Space, DatePicker, Card, Modal, Form, Select 
+  Tabs, Table, Tag, Button, Input, DatePicker, Modal, Form, Select 
 } from 'antd';
 import { 
   NotificationOutlined, FileSearchOutlined, DollarCircleOutlined, 
@@ -40,18 +40,30 @@ const NotificationsTab = ({ data, onOpenModal }: any) => {
 // --- TAB 2: NHẬT KÝ HỆ THỐNG ---
 const AuditLogsTab = ({ data, dateRange, setDateRange, onFilter }: any) => {
   const columns = [
-   {
-      title: 'Người thực hiện',
-      dataIndex: 'actor',
-      key: 'actor',
-      render: (actor: any) => {
-        if (!actor) return <Tag>System</Tag>;
-        return <b style={{ color: '#1890ff' }}>{actor.name}</b>;
-      },
-    }
-    ,
-    { title: 'Hành động', dataIndex: 'action', key: 'action', render: (t: string) => <Tag color="purple">{t}</Tag> },
-    { title: 'Đối tượng', dataIndex: 'object_type', key: 'target' },
+    {
+      title: 'Người thực hiện',
+      dataIndex: 'actor_user',
+      key: 'actor',
+      render: (actor: any, record: any) => {
+        const user = actor || record.actor_user || record.actor;
+        if (!user) return <Tag>System</Tag>;
+        const str = typeof user === 'string' ? user : (user.name || user.id || '');
+        return <span style={{ fontWeight: 500, color: '#1890ff' }}>{str.length > 8 ? str.substring(0, 8) + '...' : str || 'System'}</span>;
+      },
+    },
+    { 
+      title: 'Hành động', 
+      dataIndex: 'action', 
+      key: 'action', 
+      render: (text: string) => {
+        let color = 'blue';
+        if (text?.includes('UPSERT')) color = 'orange';
+        if (text?.includes('VALIDATE') || text?.includes('USE')) color = 'green';
+        if (text?.includes('PAYMENT') || text?.includes('BUY')) color = 'gold';
+        return <Tag color={color}>{text}</Tag>;
+      } 
+    },
+    { title: 'Đối tượng', dataIndex: 'object_type', key: 'target', render: (t: string) => <b>{t}</b> },
     { title: 'ID Đối tượng', dataIndex: 'object_id', key: 'obj_id' },
     { title: 'Thời gian', dataIndex: 'created_at', key: 'time', render: (t: string) => dayjs(t).format('HH:mm DD/MM/YYYY') },
   ];

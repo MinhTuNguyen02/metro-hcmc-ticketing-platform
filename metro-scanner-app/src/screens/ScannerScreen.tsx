@@ -108,7 +108,7 @@ const ScannerScreen = ({ navigation }: any) => {
       
       {/* --- CAMERA VIEW (Full Screen) --- */}
       <CameraView
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{

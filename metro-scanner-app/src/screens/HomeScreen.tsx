@@ -42,7 +42,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <StatusBar barStyle="dark-content" />
 
       {/* --- HEADER --- */}
       <View style={styles.header}>

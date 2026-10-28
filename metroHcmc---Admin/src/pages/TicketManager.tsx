@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Tabs, Card, Form, InputNumber, Button, Table, Tag, Space, Input, Typography, Modal, Select, Switch, Row, Col 
+  Tabs, Card, Form, InputNumber, Button, Table, Tag, Input, Typography, Modal, Select, Switch, Row, Col 
 } from 'antd';
 import { 
   EditOutlined, SaveOutlined, SettingOutlined, QrcodeOutlined, ReloadOutlined, PlusOutlined 
@@ -69,7 +69,12 @@ const TicketProductsTab = ({ data, loading, onEdit, onAdd }: any) => {
     dataIndex: 'type', 
     key: 'type', 
     // 🔥 SỬA TẠI ĐÂY: Hiển thị nhãn Tiếng Việt cho 2 loại vé
-    render: (t: string) => <Tag color="cyan">{t === 'day_pass' ? 'Vé Ngày' : 'Vé Tháng'}</Tag>
+    render: (t: string) => {
+      if (t === 'day_pass') return <Tag color="cyan">Vé Ngày</Tag>;
+      if (t === 'multi_day_pass') return <Tag color="blue">Vé Nhiều Ngày</Tag>;
+      if (t === 'monthly_pass') return <Tag color="purple">Vé Tháng</Tag>;
+      return <Tag color="default">{t}</Tag>;
+    }
   },
     { 
       title: 'Giá bán', dataIndex: 'price', key: 'price',
@@ -144,6 +149,7 @@ const TicketManager: React.FC = () => {
           <Form.Item label="Loại gói vé" name="type" rules={[{ required: true }]}>
           <Select placeholder="Chọn loại vé">
             <Option value="day_pass">Vé ngày (Day Pass)</Option>
+            <Option value="multi_day_pass">Vé nhiều ngày (Multi-day Pass)</Option>
             <Option value="monthly_pass">Vé tháng (Monthly Pass)</Option>
           </Select>
         </Form.Item>
@@ -175,7 +181,7 @@ const TicketManager: React.FC = () => {
             </Col>
           </Row>
           <Form.Item name="id_check" hidden><Input /></Form.Item>
-          <Form.Item name="type" hidden initialValue="daily_pass"><Input /></Form.Item>
+
         </Form>
       </Modal>
     </div>

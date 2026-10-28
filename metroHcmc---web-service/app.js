@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 // 4. Đăng ký Đường dẫn Cơ sở
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/payment', paymentRoutes); // Alias phòng khi người dùng nhập số ít
 app.use('/api/scanner', scannerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tickets', ticketRoutes);

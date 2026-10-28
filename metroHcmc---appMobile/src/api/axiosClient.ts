@@ -10,7 +10,7 @@ export interface ApiResponse {
   ok?: boolean;
 }
 
-const BASE_URL = 'http://192.168.96.37:3000/api';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.7:3001/api';
 
 const axiosClient = axios.create({
   baseURL: BASE_URL,

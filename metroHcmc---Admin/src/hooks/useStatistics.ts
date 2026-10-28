@@ -8,6 +8,7 @@ export const useStatistics = () => {
   const [trafficData, setTrafficData] = useState<any[]>([]);
   // 👇 THÊM STATE NÀY
   const [pieData, setPieData] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   
   const [kpi, setKpi] = useState({
     totalRevenue: 0,
@@ -26,12 +27,18 @@ export const useStatistics = () => {
       setLoading(true);
       const [from, to] = dateRange;
 
-      // Gọi 3 API cùng lúc (Doanh thu, Traffic, và Loại vé)
-      const [resSales, resTraffic, resTypes]: any = await Promise.all([
+      // Gọi 4 API cùng lúc (Doanh thu, Traffic, Loại vé, và Nhật ký Audit)
+      const fromTs = dayjs(from).startOf('day').toISOString();
+      const toTs = dayjs(to).endOf('day').toISOString();
+      const [resSales, resTraffic, resTypes, resAudit]: any = await Promise.all([
         axiosClient.get(`/admin/report/sales?from_date=${from}&to_date=${to}`),
         axiosClient.get(`/admin/report/traffic?from_date=${from}&to_date=${to}`),
-        axiosClient.get(`/admin/report/ticket-types?from_date=${from}&to_date=${to}`) // <-- API MỚI
+        axiosClient.get(`/admin/report/ticket-types?from_date=${from}&to_date=${to}`),
+        axiosClient.get(`/admin/audit?from_ts=${fromTs}&to_ts=${toTs}`)
       ]);
+
+      const logs = resAudit?.data?.logs || resAudit?.result?.logs || [];
+      setAuditLogs(logs);
 
       // ... (Xử lý chartSales, chartTraffic giữ nguyên) ...
       const chartSales = (resSales.data?.rows || []).map((item: any) => ({
@@ -85,6 +92,7 @@ export const useStatistics = () => {
     salesData, 
     trafficData, 
     pieData, 
+    auditLogs,
     kpi, 
     setDateRange, 
     refetch: fetchData 

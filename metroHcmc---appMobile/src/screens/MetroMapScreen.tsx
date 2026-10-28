@@ -42,6 +42,16 @@ const MetroMapScreen = () => {
   const [selectingType, setSelectingType] = useState<"FROM" | "TO" | null>(
     null
   ); // Để mở Modal chọn ga
+  const [tracksViewChanges, setTracksViewChanges] = useState(true);
+
+  // Cho phép render nhãn & chấm hoàn tất trên layout engine rồi khóa lại để tối ưu mượt mà khi zoom
+  useEffect(() => {
+    setTracksViewChanges(true);
+    const timer = setTimeout(() => {
+      setTracksViewChanges(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [stations, fromStation?.code, toStation?.code, nearestStation?.code]);
 
   const INITIAL_REGION = {
     latitude: 10.7769,
@@ -191,11 +201,29 @@ const MetroMapScreen = () => {
 
   const routeCoordinates = useMemo(
     () =>
-      stations
+      [...stations]
         .filter((s) => s.lat && s.lon)
-        .map((s) => ({ latitude: s.lat, longitude: s.lon })),
+        .sort((a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0))
+        .map((s) => ({ latitude: Number(s.lat), longitude: Number(s.lon) })),
     [stations]
   );
+
+  // Tự động căn chỉnh Camera bao trọn toàn bộ tuyến Metro khi tải xong ga
+  useEffect(() => {
+    if (stations.length > 0 && mapRef.current) {
+      const coords = stations
+        .filter((s) => s.lat && s.lon)
+        .map((s) => ({ latitude: Number(s.lat), longitude: Number(s.lon) }));
+      if (coords.length > 1) {
+        setTimeout(() => {
+          mapRef.current?.fitToCoordinates(coords, {
+            edgePadding: { top: 180, right: 50, bottom: 150, left: 50 },
+            animated: true,
+          });
+        }, 500);
+      }
+    }
+  }, [stations]);
 
   // Đảo ngược ga đi/đến
   const handleSwapStations = () => {
@@ -341,12 +369,13 @@ const MetroMapScreen = () => {
     const endIdx = Math.max(from.order_index, to.order_index);
 
     // Tính toán tọa độ mới
-    const newCoordinates = stations
+    const newCoordinates = [...stations]
       .filter(
         (s) =>
           s.order_index >= startIdx && s.order_index <= endIdx && s.lat && s.lon
       )
-      .map((s) => ({ latitude: s.lat, longitude: s.lon }));
+      .sort((a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0))
+      .map((s) => ({ latitude: Number(s.lat), longitude: Number(s.lon) }));
 
     // CẬP NHẬT TRỰC TIẾP POLYLINE MÀ KHÔNG GỌI RENDER
     highlightPolylineRef.current.setNativeProps({
@@ -356,11 +385,7 @@ const MetroMapScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent
-      />
+      <StatusBar barStyle="dark-content" />
 
       {/* HEADER */}
       <SafeAreaView style={styles.topPanelWrapper} edges={["top"]}>
@@ -471,80 +496,118 @@ const MetroMapScreen = () => {
           showsMyLocationButton={false} // Tắt nút mặc định để dùng nút custom đẹp hơn
           showsCompass={false}
         >
+          {/* Lớp bóng ngoài của đường ray Metro */}
+          <Polyline
+            coordinates={routeCoordinates}
+            strokeColor="rgba(0, 62, 179, 0.2)"
+            strokeWidth={10}
+          />
+
+          {/* Đường ray chính màu xanh của Metro Tuyến 1 */}
           <Polyline
             coordinates={routeCoordinates}
             strokeColor="#003eb3"
-            strokeWidth={6}
-            lineDashPattern={[1]}
+            strokeWidth={5}
           />
 
-          {/* Đường ray được chọn (Highlight - Màu cam) */}
+          {/* Đường ray được chọn (Highlight chặng đi - Màu cam đỏ) */}
           <Polyline
             ref={highlightPolylineRef}
             coordinates={[]}
-            strokeColor="#FF9800"
-            strokeWidth={6}
+            strokeColor="#FF5722"
+            strokeWidth={7}
           />
 
-          {stations.map((station) => {
-            if (!station.lat || !station.lon) return null;
+          {stations.flatMap((station) => {
+            if (!station.lat || !station.lon) return [];
 
-            // Logic màu marker
-            let markerColor = "#003eb3"; // Mặc định xanh
-            let isSelected = false;
+            const isFrom = station.code === fromStation?.code;
+            const isTo = station.code === toStation?.code;
+            const isSelected = isFrom || isTo;
+            const isNearest = station.code === nearestStation?.code;
+            const isEndpoint =
+              station.order_index === 1 ||
+              station.order_index === stations.length;
 
-            if (station.code === fromStation?.code) {
-              markerColor = "#4CAF50";
-              isSelected = true;
-            } // Ga đi: Xanh lá
-            else if (station.code === toStation?.code) {
-              markerColor = "#FF5722";
-              isSelected = true;
-            } // Ga đến: Cam đỏ
+            let dotBorderColor = "#003eb3";
+            let dotBgColor = "#ffffff";
+            if (isFrom) {
+              dotBorderColor = "#4CAF50";
+              dotBgColor = "#4CAF50";
+            } else if (isTo) {
+              dotBorderColor = "#FF5722";
+              dotBgColor = "#FF5722";
+            } else if (isNearest) {
+              dotBorderColor = "#00C853";
+            } else if (isEndpoint) {
+              dotBorderColor = "#D32F2F";
+            }
 
-            return (
+            const coordinate = {
+              latitude: Number(station.lat),
+              longitude: Number(station.lon),
+            };
+
+            return [
+              // 1. Chấm tròn của Ga - Kích thước cố định 24x24, tâm tuyệt đối {0.5, 0.5}, khóa chặt 100% trên đường ray khi zoom
               <Marker
-                key={station.code}
-                coordinate={{ latitude: station.lat, longitude: station.lon }}
+                key={`dot-${station.code}`}
+                coordinate={coordinate}
                 title={station.name}
-                description={`Ga số ${station.order_index}`}
+                description={`Ga số ${station.order_index} (${station.code})`}
                 onPress={() => handleMarkerSelect(station)}
+                anchor={{ x: 0.5, y: 0.5 }}
+                tracksViewChanges={tracksViewChanges}
+                zIndex={isSelected || isNearest ? 10 : 8}
               >
-                <View style={styles.markerContainer}>
+                <View style={styles.markerDotWrapper}>
                   <View
                     style={[
                       styles.markerDot,
-                      station.code === nearestStation?.code
-                        ? styles.nearestDot
-                        : {}, // Highlight ga gần nhất
-                      station.order_index === 1 ||
-                      station.order_index === stations.length
-                        ? styles.endPoint
-                        : {},
+                      { borderColor: dotBorderColor, backgroundColor: dotBgColor },
+                      isSelected && styles.selectedDot,
+                      isNearest && styles.nearestDot,
+                      isEndpoint && !isSelected && styles.endPoint,
                     ]}
-                  />
+                  >
+                    {isSelected && <View style={styles.selectedInnerWhite} />}
+                  </View>
+                </View>
+              </Marker>,
+
+              // 2. Nhãn hiển thị đầy đủ tên Ga - Neo đỉnh tâm {0.5, 0.0}, luôn nằm ngay ngắn bên dưới chấm tròn không bao giờ lệch
+              <Marker
+                key={`label-${station.code}`}
+                coordinate={coordinate}
+                onPress={() => handleMarkerSelect(station)}
+                anchor={{ x: 0.5, y: 0.0 }}
+                tracksViewChanges={tracksViewChanges}
+                zIndex={isSelected || isNearest ? 9 : 7}
+              >
+                <View style={styles.markerLabelContainer}>
                   <View
                     style={[
                       styles.markerLabel,
-                      station.code === nearestStation?.code
-                        ? styles.nearestLabel
-                        : {},
+                      isNearest && styles.nearestLabel,
+                      isFrom && { backgroundColor: "#4CAF50", borderColor: "#2E7D32" },
+                      isTo && { backgroundColor: "#FF5722", borderColor: "#D84315" },
                     ]}
                   >
                     <Text
                       style={[
                         styles.markerText,
-                        station.code === nearestStation?.code
-                          ? { color: "white", fontWeight: "bold" }
-                          : {},
+                        (isNearest || isSelected) && {
+                          color: "white",
+                          fontWeight: "bold",
+                        },
                       ]}
                     >
                       {station.name}
                     </Text>
                   </View>
                 </View>
-              </Marker>
-            );
+              </Marker>,
+            ];
           })}
         </MapView>
       )}
@@ -744,36 +807,83 @@ const styles = StyleSheet.create({
   buyBtnText: { color: "white", fontWeight: "bold", marginRight: 5 },
 
   // Marker
-  markerContainer: { alignItems: "center" },
+  markerDotWrapper: {
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   markerDot: {
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderWidth: 3,
-    borderColor: "#ff4d4f",
-    marginBottom: 2,
+    borderColor: "#003eb3",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+    elevation: 3,
   },
-  endPoint: { borderColor: "#ff4d4f", width: 16, height: 16, borderRadius: 8 },
+  selectedDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 3.5,
+  },
+  selectedInnerWhite: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#ffffff",
+  },
+  endPoint: {
+    borderColor: "#D32F2F",
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 3.5,
+  },
   nearestDot: {
-    borderColor: "#4CAF50",
+    borderColor: "#00C853",
     width: 18,
     height: 18,
     borderRadius: 9,
     borderWidth: 4,
-  }, // Xanh lá cho ga gần nhất
-
+  },
+  markerLabelContainer: {
+    paddingTop: 13,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
   markerLabel: {
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "rgba(255,255,255,0.95)",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 1.5,
     elevation: 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  nearestLabel: { backgroundColor: "#4CAF50", borderColor: "#388E3C" },
-  markerText: { fontSize: 10, fontWeight: "700", color: "#333" },
+  nearestLabel: {
+    backgroundColor: "#00C853",
+    borderColor: "#009624",
+  },
+  markerText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#222",
+    textAlign: "center",
+  },
 
   // Controls
   controlsContainer: {

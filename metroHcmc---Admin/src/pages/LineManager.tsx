@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Tag, Button, Descriptions, Timeline, Switch, message, Spin, Row, Col } from 'antd';
-import { EditOutlined, SettingOutlined, CheckCircleOutlined, StopOutlined, CompassOutlined } from '@ant-design/icons';
+import { Card, Tag, Descriptions, Timeline, Switch, message, Spin, Row, Col } from 'antd';
+import { SettingOutlined, CheckCircleOutlined, StopOutlined, CompassOutlined } from '@ant-design/icons';
 import axiosClient from '../api/axiosClient';
 import StationMap from '../components/StationMap'; 
 

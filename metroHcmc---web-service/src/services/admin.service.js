@@ -238,7 +238,7 @@
       sales: salesRes.rows[0]?.result?.rows || [],
       traffic: trafficRes.rows[0]?.result?.rows || [],
       totalScans: scanRes.rows[0]?.count || 0,
-      recentLogs: auditRes.rows[0]?.result?.logs?.slice(0, 5) || [] // Lấy 5 dòng đầu
+      recentLogs: (auditRes.rows[0]?.result?.data?.logs || auditRes.rows[0]?.result?.result?.logs || []).slice(0, 10) // Lấy 5 dòng đầu
     };
   };
 

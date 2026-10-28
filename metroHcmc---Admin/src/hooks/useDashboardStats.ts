@@ -26,9 +26,7 @@ export const useDashboardStats = () => {
     try {
       setLoading(true);
 
-      const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD');
-      const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD');
-      const today = dayjs().format('YYYY-MM-DD');
+            const today = dayjs().format('YYYY-MM-DD');
 
       // Gọi song song các API cần thiết
       const [resSales, resTrafficToday, resStats, resAudit] = await Promise.all([
@@ -61,7 +59,7 @@ export const useDashboardStats = () => {
       // Lấy từ API dashboard-stats mà mình đã soi curl thấy số 8
       const realTotalScans = (resStats as any).data?.scans || 0;
       // D. Log hoạt động
-      const realLogs = (resAudit as any).data?.logs || [];
+      const realLogs = (resAudit as any)?.data?.logs || (resAudit as any)?.result?.logs || (resStats as any)?.recentLogs || [];
 
       // --- CẬP NHẬT STATE ---
       setStats({

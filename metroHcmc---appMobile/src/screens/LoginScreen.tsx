@@ -18,8 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 const LoginScreen = ({ navigation }: any) => {
   // Đổi default sang tài khoản Customer để bạn đỡ phải gõ lại khi test
-  const [email, setEmail] = useState('customer@metro.local');
-  const [password, setPassword] = useState('customer123');
+  const [email, setEmail] = useState('customer@metro.com');
+  const [password, setPassword] = useState('Customer@123456');
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -133,9 +133,9 @@ const LoginScreen = ({ navigation }: any) => {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.biometricBtn} 
-            onPress={() => navigation.navigate('FaceLogin')} 
+          <TouchableOpacity
+            style={styles.biometricBtn}
+            onPress={() => navigation.navigate('FaceLogin')}
           >
             <Ionicons name="finger-print" size={24} color="#003eb3" />
             <Text style={styles.biometricText}>Đăng nhập nhanh (FaceID/Vân tay)</Text>
@@ -191,17 +191,17 @@ const styles = StyleSheet.create({
   signupText: { color: '#003eb3', fontWeight: 'bold', fontSize: 14 },
 
   biometricBtn: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginTop: 15,
-  padding: 12,
-  borderRadius: 12,
-  backgroundColor: '#f0f4ff',
-  borderWidth: 1,
-  borderColor: '#d0d7de',
-},
-biometricText: { marginLeft: 10, color: '#003eb3', fontWeight: '600' },
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 15,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#f0f4ff',
+    borderWidth: 1,
+    borderColor: '#d0d7de',
+  },
+  biometricText: { marginLeft: 10, color: '#003eb3', fontWeight: '600' },
 
 
 });

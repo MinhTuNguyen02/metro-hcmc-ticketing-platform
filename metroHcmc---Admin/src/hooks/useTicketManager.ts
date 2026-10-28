@@ -42,7 +42,7 @@ export const useTicketManager = () => {
         // Lọc để chỉ lấy đúng 2 loại vé gói có trong Database Enum
         const rawData = resProducts.data || [];
         const filteredData = Array.isArray(rawData) 
-          ? rawData.filter((item: any) => item.type === 'day_pass' || item.type === 'monthly_pass')
+          ? rawData.filter((item: any) => item.type === 'day_pass' || item.type === 'multi_day_pass' || item.type === 'monthly_pass')
           : [];
           
         setTicketProducts(filteredData);

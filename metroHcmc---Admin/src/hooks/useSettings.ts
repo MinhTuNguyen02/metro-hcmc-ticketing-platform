@@ -34,9 +34,15 @@ export const useSettings = () => {
         axiosClient.get(`/admin/payments?from_ts=${fromStr}&to_ts=${toStr}`)
       ]);
 
-      if ((resAnn as any).ok) setAnnouncements((resAnn as any).data);
-      if ((resAudit as any).ok) setAuditLogs((resAudit as any).data?.logs || []);
-      if ((resPay as any).ok) setPayments((resPay as any).data?.payments || []);
+      if ((resAnn as any)?.ok) setAnnouncements((resAnn as any).data || []);
+      if ((resAudit as any)?.ok) {
+        const logs = (resAudit as any).data?.logs || (resAudit as any).result?.logs || [];
+        setAuditLogs(logs);
+      }
+      if ((resPay as any)?.ok) {
+        const rawPayments = (resPay as any).data || (resPay as any).result?.payments || [];
+        setPayments(Array.isArray(rawPayments) ? rawPayments : (rawPayments.payments || []));
+      }
 
     } catch (error) {
       console.error(error);

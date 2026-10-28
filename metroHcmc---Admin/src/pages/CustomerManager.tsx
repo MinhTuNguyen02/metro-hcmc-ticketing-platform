@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { 
   Table, Tag, Space, Button, Input, Card, Typography, 
   Avatar, Tooltip, Row, Col, Divider, Modal, List, Badge, message, Alert
@@ -38,8 +38,7 @@ const CustomerManager: React.FC = () => {
   });
 
   // State cho Modal lịch sử đi tàu
-  const [historyModal, setHistoryModal] = useState({ open: false, user: null as any, data: [] as any[] });
-
+  
   // 1. Mở Modal chọn mã quà tặng
   const handleOpenPromo = async (user: any) => {
     const codes = await fetchAvailableCodes();
@@ -139,6 +138,13 @@ const CustomerManager: React.FC = () => {
     },
   ];
 
+  const filteredCustomers = customers.filter((c: any) =>
+    !searchText ||
+    (c.full_name && c.full_name.toLowerCase().includes(searchText.toLowerCase())) ||
+    (c.email && c.email.toLowerCase().includes(searchText.toLowerCase())) ||
+    (c.phone && c.phone.includes(searchText))
+  );
+
   return (
     <div className="animate-fade-in">
       <Card bordered={false} style={{ borderRadius: 12, marginBottom: 24 }}>
@@ -159,7 +165,7 @@ const CustomerManager: React.FC = () => {
       </Card>
 
       <Card bordered={false} style={{ borderRadius: 12 }}>
-        <Table columns={columns} dataSource={customers} loading={loading} rowKey="user_id" />
+        <Table columns={columns} dataSource={filteredCustomers} loading={loading} rowKey="user_id" />
       </Card>
 
       {/* Modal 1: Chọn mã giảm giá */}

@@ -75,7 +75,7 @@ const loadData = async () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#3275CA" />
+      <StatusBar barStyle="light-content" />
 
       {/* HEADER */}
       <View style={styles.headerBackground}>

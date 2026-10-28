@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography, ConfigProvider, App } from 'antd';
-import { MailOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { MailOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const ForgotPassword: React.FC = () => {
   const { message } = App.useApp();

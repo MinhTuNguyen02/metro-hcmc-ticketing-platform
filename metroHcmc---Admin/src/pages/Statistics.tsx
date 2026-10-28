@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, DatePicker, Statistic, Typography, Button } from 'antd';
+import { Card, Row, Col, DatePicker, Statistic, Typography, Button, Table, Tag } from 'antd';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   BarChart, Bar, Legend, PieChart, Pie, Cell 
@@ -18,11 +18,48 @@ const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 
 const Statistics: React.FC = () => {
-  const { loading, salesData, trafficData, pieData, kpi, setDateRange, refetch } = useStatistics();
+  const { loading, salesData, trafficData, pieData, auditLogs, kpi, setDateRange, refetch } = useStatistics();
 
   const handleDateChange = (dates: any, dateStrings: [string, string]) => {
     if (dates) setDateRange(dateStrings);
   };
+
+  const auditColumns = [
+    { 
+      title: 'Người dùng / ID', 
+      dataIndex: 'actor_user', 
+      key: 'actor', 
+      render: (text: string) => (
+        <span style={{ fontWeight: 500, color: '#1890ff' }}>
+          {text ? text.substring(0, 8) + '...' : 'System/Khách'}
+        </span>
+      )
+    },
+    { 
+      title: 'Hành động', 
+      dataIndex: 'action', 
+      key: 'action', 
+      render: (text: string) => {
+        let color = 'blue';
+        if (text?.includes('UPSERT')) color = 'orange';
+        if (text?.includes('VALIDATE') || text?.includes('USE')) color = 'green';
+        if (text?.includes('PAYMENT') || text?.includes('BUY')) color = 'gold';
+        return <Tag color={color}>{text}</Tag>;
+      }
+    },
+    { 
+      title: 'Đối tượng', 
+      dataIndex: 'object_type', 
+      key: 'object_type',
+      render: (text: string) => <b>{text}</b>
+    },
+    { 
+      title: 'Thời gian', 
+      dataIndex: 'created_at', 
+      key: 'time',
+      render: (text: string) => dayjs(text).format('HH:mm DD/MM/YYYY')
+    },
+  ];
 
   return (
     <div className="animate-fade-in">
@@ -135,7 +172,7 @@ const Statistics: React.FC = () => {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {pieData.map((entry, index) => (
+                    {pieData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
@@ -163,6 +200,24 @@ const Statistics: React.FC = () => {
                   </BarChart>
                 </ResponsiveContainer>
              </div>
+          </Card>
+        </Col>
+      </Row>
+      {/* --- 4. AUDIT LOGS TABLE --- */}
+      <Row style={{ marginTop: 24 }}>
+        <Col span={24}>
+          <Card 
+            title="Nhật ký Hoạt động & Kiểm toán Hệ thống (Audit Log)" 
+            bordered={false} 
+            style={{ borderRadius: 16, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+          >
+            <Table 
+              columns={auditColumns} 
+              dataSource={auditLogs} 
+              rowKey="log_id" 
+              pagination={{ pageSize: 8 }}
+              size="small" 
+            />
           </Card>
         </Col>
       </Row>
