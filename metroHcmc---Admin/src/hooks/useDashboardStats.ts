@@ -59,7 +59,8 @@ export const useDashboardStats = () => {
       // Lấy từ API dashboard-stats mà mình đã soi curl thấy số 8
       const realTotalScans = (resStats as any).data?.scans || 0;
       // D. Log hoạt động
-      const realLogs = (resAudit as any)?.data?.logs || (resAudit as any)?.result?.logs || (resStats as any)?.recentLogs || [];
+      const rawLogs = (resAudit as any)?.data?.logs || (resAudit as any)?.result?.logs || (resStats as any)?.recentLogs || [];
+      const realLogs = rawLogs.slice(0, 10);
 
       // --- CẬP NHẬT STATE ---
       setStats({

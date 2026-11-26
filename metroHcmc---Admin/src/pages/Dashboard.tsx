@@ -21,15 +21,30 @@ const Dashboard: React.FC = () => {
   // Cấu hình cột cho bảng Audit Log thật
   const columns = [
     { 
-      title: 'Người dùng / ID', 
-      dataIndex: 'actor_user', 
+      title: 'Tác nhân', 
+      dataIndex: 'actor_name', 
       key: 'actor', 
-      render: (text: string) => (
-        // Nếu null thì là System, nếu có ID thì cắt ngắn cho đẹp
-        <span style={{ fontWeight: 500, color: '#1890ff' }}>
-          {text ? text.substring(0, 8) + '...' : 'System/Khách'}
-        </span>
-      )
+      render: (_: any, record: any) => {
+        const name = record.actor_name || record.display_name || (record.actor_user ? (record.actor_user.length > 8 ? record.actor_user.substring(0, 8) + '...' : record.actor_user) : 'Hệ thống');
+        const role = record.actor_role;
+        const isSystem = !record.actor_user || name === 'Hệ thống';
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontWeight: 600, color: isSystem ? '#595959' : '#1890ff' }}>
+              {name}
+            </span>
+            {record.actor_email && (
+              <span style={{ fontSize: 12, color: '#8c8c8c' }}>{record.actor_email}</span>
+            )}
+            {role && (
+              <Tag color={role === 'ADMIN' ? 'volcano' : role === 'INSPECTOR' ? 'cyan' : 'blue'} style={{ width: 'fit-content', fontSize: 11, lineHeight: '18px', padding: '0 4px', margin: 0 }}>
+                {role}
+              </Tag>
+            )}
+          </div>
+        );
+      }
     },
     { 
       title: 'Hành động', 
@@ -37,9 +52,9 @@ const Dashboard: React.FC = () => {
       key: 'action', 
       render: (text: string) => {
         let color = 'blue';
-        if (text.includes('UPSERT')) color = 'orange'; // Cấu hình
-        if (text.includes('VALIDATE') || text.includes('USE')) color = 'green'; // Soát vé
-        if (text.includes('PAYMENT')) color = 'gold'; // Thanh toán
+        if (text?.includes('UPSERT')) color = 'orange'; // Cấu hình
+        if (text?.includes('VALIDATE') || text?.includes('USE')) color = 'green'; // Soát vé
+        if (text?.includes('PAYMENT') || text?.includes('BUY')) color = 'gold'; // Thanh toán
         return <Tag color={color}>{text}</Tag>;
       }
     },
@@ -65,7 +80,7 @@ const Dashboard: React.FC = () => {
         <Button icon={<SyncOutlined spin={loading} />} onClick={refetch}>Làm mới</Button>
       </div>
       
-      {/* PHẦN THẺ SỐ LIỆU (GIỮ NGUYÊN) */}
+      {/* PHẦN THẺ SỐ LIỆU */}
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={8}>
           <Card 
@@ -133,13 +148,16 @@ const Dashboard: React.FC = () => {
 
       {/* PHẦN BẢNG HOẠT ĐỘNG (DỮ LIỆU THẬT) */}
       <div style={{ marginTop: 32 }}>
-        <Title level={4}>Hoạt động gần đây (Audit Log)</Title>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Title level={4} style={{ margin: 0 }}>Hoạt động gần đây (Audit Log)</Title>
+          <span style={{ fontSize: 13, color: '#888' }}>Hiển thị 5 hoạt động mỗi trang (tối đa 10 hoạt động mới nhất)</span>
+        </div>
         <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
           <Table 
-            dataSource={stats.recentLogs} // <-- Dùng dữ liệu thật
+            dataSource={stats.recentLogs} // <-- Dùng dữ liệu thật (đã giới hạn số lượng)
             columns={columns} 
             rowKey="log_id" // Database dùng log_id làm khóa chính
-            pagination={false} 
+            pagination={{ pageSize: 5, size: 'small', showSizeChanger: false }} 
             loading={loading}
             locale={{ emptyText: 'Chưa có hoạt động nào' }}
           />

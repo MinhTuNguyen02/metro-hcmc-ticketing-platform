@@ -2228,22 +2228,30 @@ DECLARE
 BEGIN
   SELECT COALESCE(json_agg(
     json_build_object(
-      'log_id', log_id,
-      'actor_user', actor_user,
-      'action', action,
-      'object_type', object_type,
-      'object_id', object_id,
-      'payload_json', payload_json,
-      'created_at', created_at
-    ) ORDER BY created_at DESC
+      'log_id', al.log_id,
+      'actor_user', al.actor_user,
+      'actor_name', COALESCE(u.display_name, CASE WHEN al.actor_user IS NULL THEN 'Hệ thống' ELSE 'Người dùng (' || SUBSTRING(al.actor_user::text, 1, 8) || ')' END),
+      'actor_email', u.primary_email,
+      'actor_role', u.role,
+      'action', al.action,
+      'object_type', al.object_type,
+      'object_id', al.object_id,
+      'payload_json', al.payload_json,
+      'created_at', al.created_at
+    ) ORDER BY al.created_at DESC
   ), '[]'::JSON)
   INTO v_logs
-  FROM audit_log
-  WHERE created_at >= COALESCE(p_from_ts, NOW() - INTERVAL '30 days')
-    AND created_at <= COALESCE(p_to_ts, NOW())
-    AND (p_action_filter IS NULL OR action = p_action_filter);
+  FROM audit_log al
+  LEFT JOIN users u ON al.actor_user = u.user_id
+  WHERE al.created_at >= COALESCE(p_from_ts, NOW() - INTERVAL '30 days')
+    AND al.created_at <= COALESCE(p_to_ts, NOW())
+    AND (p_action_filter IS NULL OR al.action = p_action_filter);
 
-  RETURN json_build_object('ok', TRUE, 'result', json_build_object('logs', v_logs));
+  RETURN json_build_object(
+    'ok', TRUE, 
+    'data', json_build_object('logs', v_logs), 
+    'result', json_build_object('logs', v_logs)
+  );
 END;
 $$;
 

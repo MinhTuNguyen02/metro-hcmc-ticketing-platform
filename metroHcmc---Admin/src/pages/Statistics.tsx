@@ -26,14 +26,30 @@ const Statistics: React.FC = () => {
 
   const auditColumns = [
     { 
-      title: 'Người dùng / ID', 
-      dataIndex: 'actor_user', 
+      title: 'Tác nhân', 
+      dataIndex: 'actor_name', 
       key: 'actor', 
-      render: (text: string) => (
-        <span style={{ fontWeight: 500, color: '#1890ff' }}>
-          {text ? text.substring(0, 8) + '...' : 'System/Khách'}
-        </span>
-      )
+      render: (_: any, record: any) => {
+        const name = record.actor_name || record.display_name || (record.actor_user ? (record.actor_user.length > 8 ? record.actor_user.substring(0, 8) + '...' : record.actor_user) : 'Hệ thống');
+        const role = record.actor_role;
+        const isSystem = !record.actor_user || name === 'Hệ thống';
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontWeight: 600, color: isSystem ? '#595959' : '#1890ff' }}>
+              {name}
+            </span>
+            {record.actor_email && (
+              <span style={{ fontSize: 12, color: '#8c8c8c' }}>{record.actor_email}</span>
+            )}
+            {role && (
+              <Tag color={role === 'ADMIN' ? 'volcano' : role === 'INSPECTOR' ? 'cyan' : 'blue'} style={{ width: 'fit-content', fontSize: 11, lineHeight: '18px', padding: '0 4px', margin: 0 }}>
+                {role}
+              </Tag>
+            )}
+          </div>
+        );
+      }
     },
     { 
       title: 'Hành động', 

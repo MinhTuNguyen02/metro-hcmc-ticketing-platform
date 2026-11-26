@@ -161,6 +161,13 @@ const DashboardLayout: React.FC = () => {
       <Sider
         collapsible breakpoint="lg" collapsedWidth="0"
         style={{
+          overflowY: 'auto',
+          height: '100vh',
+          position: 'sticky',
+          top: 0,
+          left: 0,
+          zIndex: 100,
+          scrollbarWidth: 'none',
           background: `linear-gradient(170deg, ${siderColor || '#111827'} 20%, #000000 100%)`,
           boxShadow: '4px 0 10px rgba(0,0,0,0.1)', transition: 'all 0.3s ease'
         }}
